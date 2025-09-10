@@ -18,7 +18,3 @@ class CustomException(Exception):
         return self.error_message
         
 
-try:
-    1/0
-except Exception as e:
-    logging.info(CustomException(e,sys))
