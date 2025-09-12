@@ -1,55 +1,55 @@
 import os
 import sys
+import pandas as pd
 
 from src.exception import CustomException
 from src.logger import logging
 from sqlalchemy import create_engine
 
-import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 
 
 @dataclass
-class DataIngestionConfig():
-    raw_data_path=os.path.join('artifacts','data.csv')
-    train_data_path=os.path.join('artifacts','train.csv')
-    test_data_path=os.path.join('artifacts','test.csv')
+class DataIngestionConfig:
+    raw_data_path = os.path.join("artifacts","data.csv")
+    train_data_path = os.path.join("artifacts","train.csv")
+    test_data_path = os.path.join("artifacts","test.csv")
 
 
-class DataIngestion():
+class DataIngestion:
     def __init__(self):
-        self.ingestion_config=DataIngestionConfig()
+        self.ingestion_config = DataIngestionConfig()
 
     def initiate_data_ingestion(self):
-        logging.info("Entered the data ingestion component")
+        logging.info("Entered Data Ingestion Component")
 
         try:
-            server="SANKALP\SQLEXPRESS"
-            database="mlproject"
-            driver="ODBC Driver 17 for SQL Server"
+            server = "SANKALP\SQLEXPRESS"
+            database = "mlproject"
+            driver = "ODBC Driver 17 for SQL Server"
 
-            connection_url=f"mssql+pyodbc://@{server}/{database}?driver={driver}& trusted_connection=yes"
-            engine=create_engine(connection_url)
+            connection_url = f"mssql+pyodbc://@{server}/{database}?driver={driver}& trusted_connection=yes"
+            engine = create_engine(connection_url)
 
-            query="SELECT * FROM stud"
+            query = "SELECT * FROM stud"
 
             df=pd.read_sql(query,engine)
 
-            logging.info("Read the data from SSMS")
-
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
 
-            df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
+            df.to_csv(self.ingestion_config.raw_data_path, index=False,header=True)
+
+            logging.info("Raw data ingested from ssms")
 
             logging.info("Train test split initiated")
 
-            train_set,test_set=train_test_split(df,test_size=0.2,random_state=42)
+            train_set,test_set = train_test_split(df,test_size=0.2,random_state=42)
 
             train_set.to_csv(self.ingestion_config.train_data_path,index=False,header=True)
             test_set.to_csv(self.ingestion_config.test_data_path,index=False,header=True)
 
-            logging.info("Ingestion completed and data splitted")
+            logging.info("Data splitted and saved in artifacts")
 
             return(
                 self.ingestion_config.train_data_path,
@@ -62,6 +62,4 @@ class DataIngestion():
 
 if __name__=="__main__":
     obj=DataIngestion()
-    train_data,test_data=obj.initiate_data_ingestion()
-
-
+    train_data,test_data = obj.initiate_data_ingestion()

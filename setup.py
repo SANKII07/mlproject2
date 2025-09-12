@@ -1,12 +1,13 @@
 from setuptools import setup,find_packages
 from typing import List
 
-def get_requirements(file_path:str)->List[str]:
-    ''' This function will return the list of requirements'''
 
+def get_requirements(file_path:str)->List[str]:
     requirements=[]
-    with open(file_path) as file_obj:
+
+    with open (file_path) as file_obj:
         requirements=file_obj.readlines()
+
         requirements=[req.replace("\n","") for req in requirements]
 
         if "-e ." in requirements:
@@ -17,11 +18,11 @@ def get_requirements(file_path:str)->List[str]:
 
 
 setup(
-    name="ML project 2",
-    version='0.0.1',
+    name="mlproject2",
+    version="0.0.1",
     author="Sankalp",
     author_email="sankalpupadhyay2702@gmail.com",
     packages=find_packages(),
     install_requires=get_requirements("requirements.txt")
-)
 
+)
