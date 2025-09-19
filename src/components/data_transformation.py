@@ -18,7 +18,7 @@ from sklearn.preprocessing import OneHotEncoder,StandardScaler
 @dataclass
 class DataTransformationConfig:
     preprocessor_obj_file_path = os.path.join('artifacts','preprocessor.pkl')
-
+    feature_name_file_path = os.path.join('artifacts','feature_names.pkl')
 
 class DataTransformation:
     def __init__(self):
@@ -67,6 +67,9 @@ class DataTransformation:
 
             target_column_name = "math_score"
             feature_columns = [col for col in train_df.columns if col != target_column_name]
+
+            logging.info("Saving feature names")
+            save_object(file_path=self.data_transformation_config.feature_name_file_path,obj=feature_columns)
 
             numerical_columns = [col for col in feature_columns if train_df[col].dtype !="O"]
             categorical_columns = [col for col in feature_columns if train_df[col].dtype =="O"]
