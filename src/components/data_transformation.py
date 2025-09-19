@@ -14,50 +14,50 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
 
+
 @dataclass
 class DataTransformationConfig:
-    preprocessor_obj_file_path = os.path.join('artifacts',"preprocessor.pkl")
+    preprocessor_obj_file_path = os.path.join('artifacts','preprocessor.pkl')
 
 
 class DataTransformation:
     def __init__(self):
         self.data_transformation_config = DataTransformationConfig()
 
-    def get_data_transformer_object(self,numerical_columns,categorical_columns):
-        'This function is responsible for data transformation'
+    def get_data_transformer_object(self,numercial_columns,categorical_columns):
+        '''This function is responsible for data transformation'''
 
         try:
-            num_pipeline = Pipeline(
-                steps = [
+            num_pipepline = Pipeline(
+                steps=[
                     ("imputer",SimpleImputer(strategy="median")),
                     ("scaler",StandardScaler())
                 ]
             )
-
+            
             cat_pipeline = Pipeline(
-                steps = [
+                steps=[
                     ("imputer",SimpleImputer(strategy="most_frequent")),
                     ("one_hot_encoder",OneHotEncoder(handle_unknown="ignore")),
                     ("scaler",StandardScaler(with_mean=False))
-
                 ]
             )
 
-            logging.info(f'Categorica columns {categorical_columns}')
-            logging.info(f'Numerical columns {numerical_columns}')
+            logging.info(f"categorical columns {categorical_columns}")
+            logging.info(f"Numerical columns {numercial_columns}")
 
             preprocessor = ColumnTransformer(
                 transformers = [
-                    ('num_pipeline',num_pipeline,numerical_columns),
-                    ('cat_pipeline',cat_pipeline,categorical_columns)
+                    ("num_pipline",num_pipepline,numercial_columns),
+                    ("cat_pipeline",cat_pipeline,categorical_columns)
                 ]
             )
-
             return preprocessor
         
         except Exception as e:
             raise CustomException(e,sys)
         
+
     def initiate_data_transformation(self,train_path,test_path):
         try:
             train_df = pd.read_csv(train_path)
@@ -65,25 +65,25 @@ class DataTransformation:
 
             logging.info("Read train and test data")
 
-            target_column_name = 'math_score'
-            feature_columns = [col for col in train_df.columns if col!=target_column_name]
+            target_column_name = "math_score"
+            feature_columns = [col for col in train_df.columns if col != target_column_name]
 
-            numerical_columns = [col for col in feature_columns if train_df[col].dtype !='O']
-            categorical_columns = [col for col in feature_columns if train_df[col].dtype == 'O']
+            numerical_columns = [col for col in feature_columns if train_df[col].dtype !="O"]
+            categorical_columns = [col for col in feature_columns if train_df[col].dtype =="O"]
 
-            logging.info("Obtaining preprocessor object")
+            logging.info("Obtaining preprocessing object")
 
             preprocessing_obj = self.get_data_transformer_object(
                 numerical_columns,categorical_columns
             )
 
-            input_feature_train_df = train_df.drop(columns = [target_column_name],axis=1)
+            input_feature_train_df = train_df.drop(columns=[target_column_name])
             target_feature_train_df = train_df[target_column_name]
 
-            input_feature_test_df = test_df.drop(columns=[target_column_name],axis=1)
+            input_feature_test_df = test_df.drop(columns=[target_column_name])
             target_feature_test_df = test_df[target_column_name]
 
-            logging.info("Applying preprocessor object")
+            logging.info("Applying preprocessing object")
 
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
@@ -95,13 +95,15 @@ class DataTransformation:
 
             save_object(
                 file_path = self.data_transformation_config.preprocessor_obj_file_path,
-                obj=preprocessing_obj
-            )
-
+                obj = preprocessing_obj
+                )
+            
             return(
                 train_arr,
                 test_arr,
                 self.data_transformation_config.preprocessor_obj_file_path
             )
+
         except Exception as e:
             raise CustomException(e,sys)
+        
